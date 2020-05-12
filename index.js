@@ -69,7 +69,9 @@ const propTypes = {
 	onSubmit: PropTypes.func,
 	options: PropTypes.array.isRequired,
 	styles: PropTypes.object,
+    isMulti: PropTypes.bool
 };
+
 
 const booleanIsSet = variable => variable || String(variable) === 'false';
 
@@ -82,7 +84,8 @@ class SimplePicker extends Component {
 		this.state = {
 			modalVisible: props.modalVisible || false,
 			selectedOption: props.options[selected] || props.options[selected],
-      translateY: new Animated.Value(0),
+            translateY: new Animated.Value(0),
+            previousOption: props.options[selected]
 		};
 
 		this.styles = StyleSheet.create({
@@ -141,6 +144,7 @@ class SimplePicker extends Component {
 	onPressSubmit(option) {
 		this.setState({
 			selectedOption: option,
+            previousOption: option
 		});
 		if (this.props.onSubmit) {
 			this.props.onSubmit(option);
@@ -154,7 +158,13 @@ class SimplePicker extends Component {
 		// if (this.props.onCancel) {
 		// 	this.props.onCancel(this.state.selectedOption);
 		// }
-		this.onPressSubmit(this.state.selectedOption);
+        if(this.props.isMulti === false && this.state.previousOption !== this.state.selectedOption)
+        {
+            this.onPressSubmit(this.state.selectedOption);
+        }
+        if (this.props.isMulti === true){
+            this.onPressSubmit(this.state.selectedOption);
+        }
 		this.hide();
 	}
 
@@ -242,7 +252,7 @@ class SimplePicker extends Component {
               <Picker
                 style={this.styles.bottomPicker}
                 selectedValue={selectedOption}
-                onValueChange={(option)=>this.onPressSubmit(option)}
+                onValueChange={(option)=>this.onValueChange(option)}
                 itemStyle={itemStyle}
               >
                 {options.map((option, index) => this.renderItem(option, index))}
@@ -257,6 +267,7 @@ class SimplePicker extends Component {
 
 SimplePicker.defaultProps = {
 	styles: {},
+    isMulti: false
 };
 
 SimplePicker.propTypes = propTypes;
